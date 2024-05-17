@@ -25,27 +25,28 @@ import androidx.compose.ui.window.application
 fun App() {
     var login by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
-    var is_login by remember { mutableStateOf(false)}
+    var is_login by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
     var messages = remember { mutableStateListOf<String>() }
+
+    var client = Client()
+    client.start()
 
 
     Column {
 
         //messages
-        Box(modifier = Modifier.weight(9f)){
-            val lazyListState = rememberLazyListState()
-            LazyColumn(modifier = Modifier.fillMaxSize(),
-                state = lazyListState) {
-                for(msg in messages) {
-                    items(messages) {
-                            item -> Text(item)
-                    }
-                }
-            }
-            /*Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Box(modifier = Modifier.weight(9f)) {
+            //val lazyListState = rememberLazyListState()
+            /*LazyColumn(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 Text(text)
             }*/
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
+                if (is_login) {
+                    Text(client.receive().toString())
+                }
+            }
+
 
         }
         //message and send message
@@ -53,21 +54,21 @@ fun App() {
             OutlinedTextField(modifier = Modifier.weight(8f), value = message, onValueChange = { message = it })
             Button(
                 onClick = {
-                    if(is_login){
+                    if (is_login) {
                         text += login + ": " + message + "\n"
                         messages.add(message)
-                    }
-                    else{
+                    } else {
                         is_login = true
                         login = message
-                        text += "Добро пожаловать " + login +"\n"
+                        text += "Добро пожаловать " + login + "\n"
                     }
+                    client.send(text)
+                    text = ""
                     message = ""
                 }) {
-                if(!is_login) {
+                if (!is_login) {
                     Text("Ввести логин")
-                }
-                else {
+                } else {
                     Text("Отправить")
                 }
             }

@@ -38,10 +38,13 @@ class Connection {
     }
 
     fun receive() {
+        println("receive0")
         br = socket?.getInputStream()?.bufferedReader()
-        while (!stop) {
+        println("receive1")
+        //while (!stop) {
             br?.readLine()
-        }
+        //}
+        println("receive2")
     }
 
     fun finish() {

@@ -9,11 +9,17 @@ class Server(port: Int = 8080) {
     var clientSocket: Socket? = null
     var br: BufferedReader? = null
 
+
     fun start(){
         clientSocket = socket.accept()
         thread {
-            receive()?.let { send(it) }
-
+            var text = receive()
+            //receive()?.let { send(it) }
+            if (text != null) {
+                send(text)
+                //println("")
+            }
+            println(text)
         }
     }
     fun send(text: String){
