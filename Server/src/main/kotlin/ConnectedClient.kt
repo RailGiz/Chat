@@ -6,6 +6,9 @@ class ConnectedClient(socket: Socket) {
     companion object {
         var clients = mutableListOf<ConnectedClient>()
     }
+    init{
+        clients.add(this)
+    }
 
     var connection: Connection = Connection(socket)
 

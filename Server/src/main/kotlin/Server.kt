@@ -8,10 +8,12 @@ class Server(port: Int = 8080) {
     var socket: ServerSocket = ServerSocket(port)
     var clientSocket: Socket? = null
     var br: BufferedReader? = null
+    lateinit var connection: Connection
 
 
     fun start(){
         clientSocket = socket.accept()
+        connection = Connection(clientSocket)
         thread {
             var text = receive()
             //receive()?.let { send(it) }
