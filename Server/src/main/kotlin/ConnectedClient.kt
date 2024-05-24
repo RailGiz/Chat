@@ -12,8 +12,14 @@ class ConnectedClient(socket: Socket) {
 
     var connection: Connection = Connection(socket)
 
+    fun remove_client(connectedClient: ConnectedClient){
+        clients.remove(connectedClient)
+    }
+
+
     fun send(text: String) = connection.send(text)
-    fun sendAll(text: String) = Companion.clients.forEach{
+    fun sendAll(text: String) = Companion.clients.onEach{
         it.send(text)
+        println(clients.size)
     }
 }

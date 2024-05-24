@@ -18,19 +18,23 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlin.concurrent.thread
+
 
 
 @Composable
 @Preview
-fun App() {
+fun App(client:Client, msg: String) {
     var login by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var is_login by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
     var messages = remember { mutableStateListOf<String>() }
 
-    var client = Client()
-    client.start()
+    /*if(msg!=null){
+        messages.add(msg)
+    }*/
+    println(msg)
 
 
     Column {
@@ -39,11 +43,15 @@ fun App() {
         Box(modifier = Modifier.weight(9f)) {
             //val lazyListState = rememberLazyListState()
             /*LazyColumn(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                Text(text)
+                for(m in messages) {
+                    Text(m)
+                }
             }*/
             Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
                 if (is_login) {
-                    Text(client.receive().toString())
+                    for(m in messages) {
+                        Text(m)
+                    }
                 }
             }
 
@@ -55,12 +63,14 @@ fun App() {
             Button(
                 onClick = {
                     if (is_login) {
-                        text += login + ": " + message + "\n"
-                        messages.add(message)
+                        text = login + ": " + message
                     } else {
+                        thread{
+                            println("new thread")
+                        }
                         is_login = true
                         login = message
-                        text += "Добро пожаловать " + login + "\n"
+                        text = "Добро пожаловать " + login
                     }
                     client.send(text)
                     text = ""
@@ -79,7 +89,10 @@ fun App() {
 
 
 fun main() = application {
+    var client = Client()
+    client.start()
+    var msg = ""
     Window(onCloseRequest = ::exitApplication) {
-        App()
+        App(client,msg)
     }
 }

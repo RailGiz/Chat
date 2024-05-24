@@ -7,36 +7,30 @@ import kotlin.concurrent.thread
 class Server(port: Int = 8080) {
     var socket: ServerSocket = ServerSocket(port)
     var clientSocket: Socket? = null
-    var br: BufferedReader? = null
     lateinit var connection: Connection
 
 
     fun start(){
         clientSocket = socket.accept()
-        connection = Connection(clientSocket)
         thread {
-            var text = receive()
-            //receive()?.let { send(it) }
-            if (text != null) {
-                send(text)
-                //println("")
+            var is_client = true
+            connection = clientSocket?.let { Connection(it) }!!
+            var connectedClient = ConnectedClient(clientSocket!!)
+            while (is_client) {
+
+                try {
+                    var text = connection.receive()
+                    println(text)
+                    if (text != null) {
+                        connectedClient.sendAll(text.toString())
+                    }
+                }
+                catch(e:Exception){
+                    connectedClient.remove_client(connectedClient)
+                    println("disconnected")
+                    is_client = false
+                }
             }
-            println(text)
         }
     }
-    fun send(text: String){
-        var c = clientSocket?.let { ConnectedClient(it) }
-        if (c != null) {
-            c.sendAll(text)
-        }
-    }
-
-    fun receive(): String?{
-        br = clientSocket?.getInputStream()?.bufferedReader()
-        return br?.readLine()
-    }
-    fun finish(){}
-
-
-
 }

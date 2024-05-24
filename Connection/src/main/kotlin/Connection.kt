@@ -19,17 +19,7 @@ class Connection {
     }
 
     fun start() {
-        thread {
-            try {
-                while (!stop) {
-                    receive()
-                    //finish()
-                }
-            } catch (e: Exception) {
-                println(e.message)
-                stopReceiving()
-            }
-        }
+
     }
 
     fun send(text: String) {
@@ -37,14 +27,9 @@ class Connection {
         pw?.println(text)
     }
 
-    fun receive() {
-        println("receive0")
+    fun receive():String? {
         br = socket?.getInputStream()?.bufferedReader()
-        println("receive1")
-        //while (!stop) {
-            br?.readLine()
-        //}
-        println("receive2")
+        return br?.readLine()
     }
 
     fun finish() {
