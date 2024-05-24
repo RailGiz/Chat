@@ -18,13 +18,14 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import java.io.Writer
 import kotlin.concurrent.thread
 
 
-
+lateinit var client: Client
 @Composable
 @Preview
-fun App(client:Client, msg: String) {
+fun App() {
     var login by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var is_login by remember { mutableStateOf(false) }
@@ -34,7 +35,6 @@ fun App(client:Client, msg: String) {
     /*if(msg!=null){
         messages.add(msg)
     }*/
-    println(msg)
 
 
     Column {
@@ -57,6 +57,8 @@ fun App(client:Client, msg: String) {
 
 
         }
+
+
         //message and send message
         Row {
             OutlinedTextField(modifier = Modifier.weight(8f), value = message, onValueChange = { message = it })
@@ -64,15 +66,27 @@ fun App(client:Client, msg: String) {
                 onClick = {
                     if (is_login) {
                         text = login + ": " + message
+                        println(text)
+                        client.send(text)
                     } else {
-                        thread{
-                            println("new thread")
-                        }
                         is_login = true
                         login = message
                         text = "Добро пожаловать " + login
+
+                        client = Client()
+                        client.start()
+                        client.send(text)
+                        thread{
+                            while(true) {
+                                var t = client.receive()
+                                if (t != null) {
+                                    messages.add(t)
+                                }
+                            }
+                        }
+
                     }
-                    client.send(text)
+
                     text = ""
                     message = ""
                 }) {
@@ -89,10 +103,8 @@ fun App(client:Client, msg: String) {
 
 
 fun main() = application {
-    var client = Client()
-    client.start()
     var msg = ""
     Window(onCloseRequest = ::exitApplication) {
-        App(client,msg)
+        App()
     }
 }

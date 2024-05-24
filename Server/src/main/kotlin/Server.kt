@@ -17,7 +17,6 @@ class Server(port: Int = 8080) {
             connection = clientSocket?.let { Connection(it) }!!
             var connectedClient = ConnectedClient(clientSocket!!)
             while (is_client) {
-
                 try {
                     var text = connection.receive()
                     println(text)
