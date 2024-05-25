@@ -14,12 +14,12 @@ class ConnectedClient(socket: Socket) {
 
     fun remove_client(connectedClient: ConnectedClient){
         clients.remove(connectedClient)
+        println("now "+clients.size+" clients")
     }
 
 
     fun send(text: String) = connection.send(text)
     fun sendAll(text: String) = Companion.clients.onEach{
         it.send(text)
-        println(clients.size)
     }
 }
