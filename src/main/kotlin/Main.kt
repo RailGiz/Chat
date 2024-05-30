@@ -10,12 +10,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
 import androidx.compose.ui.DragData
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import java.io.Writer
@@ -27,85 +30,86 @@ lateinit var client: Client
 @Preview
 fun App() {
     var login by remember { mutableStateOf("") }
-    // Переменная состояния, которая хранит текст сообщения, введенный пользователем.
     var message by remember { mutableStateOf("") }
-    // Переменная состояния, которая указывает, авторизован ли пользователь.
-    var is_login by remember { mutableStateOf(false) }
-    //Переменная состояния, которая хранит текст сообщения, отправленного на сервер.
+    var isLogin by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
-    //Список состояния, который хранит сообщения, полученные от сервера.
     var messages = remember { mutableStateListOf<String>() }
+    var client: Client? by remember { mutableStateOf(null) }
 
-    /*if(msg!=null){
-        messages.add(msg)
-    }*/
-
-
-    Column {
-
-        //messages
-        Box(modifier = Modifier.weight(9f)) {
-            //val lazyListState = rememberLazyListState()
-            /*LazyColumn(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                for(m in messages) {
-                    Text(m)
-                }
-            }*/
-            //отображение сообщений, полученных от сервера, в пользовательском интерфейсе приложения.
-            Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
-                if (is_login) {
-                    for(m in messages) {
-                        Text(m)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Сообщения
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Column {
+                if (isLogin) {
+                    for (m in messages) {
+                        Text(
+                            text = m,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
                     }
                 }
             }
-
-
         }
 
-
-        //message and send message
-        Row {
-            OutlinedTextField(modifier = Modifier.weight(8f), value = message, onValueChange = { message = it })
+        // Ввод сообщения и кнопка отправки
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            OutlinedTextField(
+                value = message,
+                onValueChange = { message = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Введите ваше сообщение здесь") }
+            )
+            Spacer(modifier = Modifier.width(16.dp))
             Button(
                 onClick = {
-                    if (is_login) {
-                        text = login + ": " + message
-                        println(text)
-                        client.send(text)
+                    if (isLogin) {
+                        text = "$login: $message"
+                        client?.send(text)
                     } else {
-                        is_login = true
+                        isLogin = true
                         login = message
-                        text = "Добро пожаловать " + login
-
+                        text = "Добро пожаловать $login"
                         client = Client()
-                        client.start()
-                        client.send(text)
-                        thread{
-                            while(true) {
-                                var t = client.receive()
+                        client?.start()
+                        client?.send(text)
+                        thread {
+                            while (true) {
+                                val t = client?.receive()
                                 if (t != null) {
                                     messages.add(t)
                                 }
                             }
                         }
-
                     }
-
                     text = ""
                     message = ""
-                }) {
-                if (!is_login) {
-                    Text("Ввести логин")
-                } else {
-                    Text("Отправить")
-                }
+                },
+                modifier = Modifier.height(IntrinsicSize.Min)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = "Отправить сообщение"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Отправить")
             }
         }
     }
-
 }
-
 
 fun main() = application {
     var msg = ""
