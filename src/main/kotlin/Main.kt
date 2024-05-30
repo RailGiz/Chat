@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.concurrent.thread
 
 @Composable
@@ -67,34 +69,39 @@ fun App() {
                     value = message,
                     onValueChange = { message = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Введите ваше сообщение здесь") }
+                    placeholder = {
+                        Text(if (isLogin) "Введите ваше сообщение здесь" else "Введите ваше имя здесь")
+                    }
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        if (isLogin) {
-                            val text = "$login: $message"
-                            client?.send(text)
-                        } else {
-                            isLogin = true
-                            login = message
-                            client = Client()
-                            client?.start()
-                            client?.send(login)
-                            thread {
-                                while (true) {
-                                    val t = client?.receive()
-                                    if (t != null) {
-                                        if (t.startsWith("/users ")) {
-                                            userList = t.substring(7).split(",")
-                                        } else {
-                                            messages.add(t)
+                        if (message.isNotBlank()) {
+                            if (isLogin) {
+                                val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+                                val text = "[$currentTime] $login: $message"
+                                client?.send(text)
+                            } else {
+                                isLogin = true
+                                login = message
+                                client = Client()
+                                client?.start()
+                                client?.send(login)
+                                thread {
+                                    while (true) {
+                                        val t = client?.receive()
+                                        if (t != null) {
+                                            if (t.startsWith("/users ")) {
+                                                userList = t.substring(7).split(",")
+                                            } else {
+                                                messages.add(t)
+                                            }
                                         }
                                     }
                                 }
                             }
+                            message = ""
                         }
-                        message = ""
                     },
                     modifier = Modifier.height(IntrinsicSize.Min)
                 ) {
@@ -118,7 +125,7 @@ fun App() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Пользователи онлайн:", fontSize = 20.sp, modifier = Modifier.padding(vertical = 4.dp))
+            Text("Пользователи:", fontSize = 20.sp, modifier = Modifier.padding(vertical = 4.dp))
             for (user in userList) {
                 Text(text = user, fontSize = 16.sp, modifier = Modifier.padding(vertical = 4.dp))
             }
