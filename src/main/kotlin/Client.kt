@@ -6,16 +6,16 @@ class Client(val host: String = "localhost", val port: Int = 8080) {
     var socket: Socket? = null
     lateinit var connection: Connection
 
-    fun start(){
+    fun start() {
         try {
             socket = Socket(host, port)
             connection = Connection(socket!!)
-        }catch (e:Exception){
-
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
-    fun send(text:String)=connection.send(text)
 
-    fun receive()=connection.receive()
+    fun send(text: String) = connection.send(text)
 
+    fun receive() = connection.receive()
 }
