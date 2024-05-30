@@ -27,9 +27,13 @@ lateinit var client: Client
 @Preview
 fun App() {
     var login by remember { mutableStateOf("") }
+    // Переменная состояния, которая хранит текст сообщения, введенный пользователем.
     var message by remember { mutableStateOf("") }
+    // Переменная состояния, которая указывает, авторизован ли пользователь.
     var is_login by remember { mutableStateOf(false) }
+    //Переменная состояния, которая хранит текст сообщения, отправленного на сервер.
     var text by remember { mutableStateOf("") }
+    //Список состояния, который хранит сообщения, полученные от сервера.
     var messages = remember { mutableStateListOf<String>() }
 
     /*if(msg!=null){
@@ -47,6 +51,7 @@ fun App() {
                     Text(m)
                 }
             }*/
+            //отображение сообщений, полученных от сервера, в пользовательском интерфейсе приложения.
             Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
                 if (is_login) {
                     for(m in messages) {
